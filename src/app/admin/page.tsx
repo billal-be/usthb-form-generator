@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import CreateFormPage from "./CreateFormPage";
 import FormsPage from "./FormsPage";
-import { ChevronRight, FilePlus, File } from "lucide-react";
+import UsersPage from "./UsersPage";
+import CreateUserPage from "./CreateUserPage";
+import { ChevronRight, FilePlus, File, Users, UserPlus } from "lucide-react";
 import Logo from "@/components/Logo";
 
 const menuItems = [
@@ -20,6 +22,18 @@ const menuItems = [
     label: "Créer un formulaire",
     content: "Page de création de formulaire",
     icon: FilePlus
+  },
+  {
+    id: "users",
+    label: "Tous les utilisateurs",
+    content: "Gestion des utilisateurs",
+    icon: Users
+  },
+  {
+    id: "create-user",
+    label: "Créer un utilisateur",
+    content: "Page de création d'utilisateur",
+    icon: UserPlus
   },
 ];
 
@@ -133,6 +147,10 @@ export default function Page() {
           <FormsPage />
         ) : active === "create" ? (
           <CreateFormPage />
+        ) : active === "users" ? (
+          <UsersPage />
+        ) : active === "create-user" ? (
+          <CreateUserPage />
         ) : (
           <>
             <h1 className="text-xl font-semibold">

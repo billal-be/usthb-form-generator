@@ -178,9 +178,15 @@ export default function CreateFormPage() {
         <h2 className="text-2xl my-6 font-extrabold">Formes Suggérées</h2>
 
         {loading ? (
-          <p>Loading suggested forms...</p>
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">Chargement ...</span>
+          </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <div className="text-red-500 py-4 bg-red-50 rounded-lg p-4 border border-red-200">
+            <h3 className="font-semibold text-red-700 mb-2">Erreur de chargement</h3>
+            <p>{error}</p>
+          </div>
         ) : forms.length === 0 ? (
           <p>No suggested forms available at the moment.</p>
         ) : (

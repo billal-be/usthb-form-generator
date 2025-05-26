@@ -478,7 +478,7 @@ const FormulaireConstructeur: React.FC = () => {
                   ...question,
                   type: type,
                   choix:
-                      type === "choix unique" ||
+                    type === "choix unique" ||
                       type === "dropdown"
                       ? ["Option 1", "Option 2", "Option 3"]
                       : undefined,
@@ -1643,7 +1643,7 @@ const FormulaireConstructeur: React.FC = () => {
                   </DialogHeader>
                   <CategorySelectionDialog onFormGenerated={handleFormGenerated} />
                 </DialogContent>
-              </Dialog> 
+              </Dialog>
 
               <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg">
                 <Checkbox

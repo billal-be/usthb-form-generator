@@ -3,22 +3,23 @@
 import React from 'react';
 import HomePageHeader from "@/components/HomePageHeader";
 import { useState, useEffect } from "react";
-import AdminEmptyFormsView from "./AdminEmptyFormsView";
-import AdminFormsListView from "./AdminFormsListView";
+import AdminEmptyUsersView from "./AdminEmptyUsersView";
+import AdminUsersListView from "./AdminUsersListView";
 
-type Form = {
+type User = {
     id: number;
-    form_name: string;
-    form_description: string;
+    username: string;
+    email: string;
+    role: string;
 };
 
-export default function AdminPage() {
-    const [forms, setForms] = useState<Form[]>([]);
+export default function UsersPage() {
+    const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchPublishedForms = async () => {
+        const fetchUsers = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
@@ -39,7 +40,7 @@ export default function AdminPage() {
                     throw new Error("No authentication token found");
                 }
 
-                const response = await fetch('https://projuniv-backend.onrender.com/forms/published', {
+                const response = await fetch('https://projuniv-backend.onrender.com/users', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -53,24 +54,31 @@ export default function AdminPage() {
 
                 const data = await response.json();
 
-                // Set the forms data
-                setForms(Array.isArray(data) ? data : []);
+                // Set the users data
+                setUsers(Array.isArray(data) ? data : []);
 
             } catch (error: any) {
-                console.error("Error fetching published forms:", error);
-                setError(error.message || "Failed to load published forms");
-                setForms([]);
+                //console.error("Error fetching users:", error);
+                setError(error.message || "Failed to load users");
+                setUsers([]);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        fetchPublishedForms();
+        fetchUsers();
     }, []);
 
-    // Handler to remove a form from the list after successful deletion
-    const handleFormDelete = (deletedFormId: number) => {
-        setForms(prevForms => prevForms.filter(form => form.id !== deletedFormId));
+    // Handler to remove a user from the list after successful deletion
+    const handleUserDelete = (deletedUserId: number) => {
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== deletedUserId));
+    };
+
+    // Handler to update a user in the list after successful update
+    const handleUserUpdate = (updatedUser: User) => {
+        setUsers(prevUsers => prevUsers.map(user => 
+            user.id === updatedUser.id ? updatedUser : user
+        ));
     };
 
     const renderContent = () => {
@@ -92,14 +100,15 @@ export default function AdminPage() {
             );
         }
 
-        if (forms.length === 0) {
-            return <AdminEmptyFormsView />;
+        if (users.length === 0) {
+            return <AdminEmptyUsersView />;
         }
 
         return (
-            <AdminFormsListView
-                forms={forms}
-                onFormDelete={handleFormDelete}
+            <AdminUsersListView
+                users={users}
+                onUserDelete={handleUserDelete}
+                onUserUpdate={handleUserUpdate}
             />
         );
     };
@@ -107,8 +116,8 @@ export default function AdminPage() {
     return (
         <main className="container mx-auto px-2 sm:px-4 flex flex-col">
             <HomePageHeader
-                title='Administrateur'
-                description='Bienvenu dans votre espace !'
+                title='Gestion des Utilisateurs'
+                description='Gérer tous les utilisateurs de la plateforme'
             />
 
             <hr className="mb-6 border-t border-muted" />
