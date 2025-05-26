@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
+import { toast, Toaster } from 'sonner';
 
 type Form = {
   id: number;
@@ -153,8 +153,6 @@ function TemplateCard({
 
 export default function FormsListView() {
   const [forms, setForms] = useState<Form[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const handleFormDelete = (formId: number) => {
     setForms(prevForms => prevForms.filter(form => form.id !== formId));
@@ -162,8 +160,6 @@ export default function FormsListView() {
 
   useEffect(() => {
     const fetchUserForms = async () => {
-      setLoading(true);
-      setError(null);
 
       try {
         // Get user from localStorage
@@ -199,10 +195,8 @@ export default function FormsListView() {
         const data = await response.json();
         setForms(data);
       } catch (error) {
-        console.error("Error fetching user forms:", error);
-        setError("Failed to load your published forms.");
+        toast.error("échec du chargement de vos formulaires publiés");
       } finally {
-        setLoading(false);
       }
     };
 
@@ -212,31 +206,25 @@ export default function FormsListView() {
   return (
     <main className="container mx-auto flex flex-col">
       {/* Grille de formulaires */}
+      <Toaster position="top-center" richColors />
       <div>
-        {loading ? (
-          <p>Loading forms...</p>
-        ) : error ? (
-          <div className="text-red-500 my-4">{error}</div>
-        ) : (
-          <>
-            <h2 className="text-xl font-semibold mb-4">
-              Formulaires publiés ({forms.length})
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {forms.map((form) => (
-                <TemplateCard
-                  key={form.id}
-                  title={form.form_name}
-                  formDescription={form.form_description}
-                  formId={form.id}
-                  numberOfResponses={form.numberOfResponses}
-                  onDelete={handleFormDelete}
-                />
-              ))}
-            </div>
-          </>
-
-        )}
+        <>
+          <h2 className="text-xl font-semibold mb-4">
+            Formulaires publiés ({forms.length})
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {forms.map((form) => (
+              <TemplateCard
+                key={form.id}
+                title={form.form_name}
+                formDescription={form.form_description}
+                formId={form.id}
+                numberOfResponses={form.numberOfResponses}
+                onDelete={handleFormDelete}
+              />
+            ))}
+          </div>
+        </>
       </div>
     </main>
   );

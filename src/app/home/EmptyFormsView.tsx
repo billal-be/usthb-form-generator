@@ -4,7 +4,11 @@ import { PlusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Logo from "@/components/Logo";
 
-export default function EmptyFormsView() {
+interface EmptyFormsViewProps {
+  text: string;
+}
+
+export default function EmptyFormsView({text}:(EmptyFormsViewProps)) {
   const router = useRouter();
   const goToCreateForm = () => {
     router.push('home/create-form');
@@ -21,7 +25,7 @@ export default function EmptyFormsView() {
           </div>
           <div className="space-y-2 text-center">
             <h2 className="text-lg font-bold">
-              Vous n'avez encore aucun formulaire
+              {text}
             </h2>
             <p className="text-sm text-gray-500">
               Cliquez sur "Nouveau formulaire" pour commencer !

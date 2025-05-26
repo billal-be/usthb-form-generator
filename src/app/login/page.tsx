@@ -6,17 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LogIn } from "lucide-react"; // Import LogIn icon
 import Logo from "@/components/Logo";
-import { toast, Toaster } from "sonner"; // Import sonner
+import { toast, Toaster } from "sonner";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true); // Start loading
 
     try {
       const response = await fetch("https://projuniv-backend.onrender.com/users/login", {
@@ -51,7 +54,9 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       const errorMessage = err.message || "Une erreur inattendue s'est produite";
-      toast.error(errorMessage); // Show toast error
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -85,6 +90,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -95,14 +101,31 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             {/* You can still show the error message in the form if you want */}
             {error && <p className="text-sm text-red-600">{error}</p>}
 
-            <Button className="w-full bg-blue-600 hover:bg-blue-700" type="submit">
-              Connecter
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Connexion...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <LogIn className="h-4 w-4" />
+                    Connecter
+                  </div>
+                )}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

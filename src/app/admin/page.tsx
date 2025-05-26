@@ -41,7 +41,7 @@ export default function Page() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sectionFromUrl = searchParams.get("section");
-  const active = sectionFromUrl ?? "create";
+  const active = sectionFromUrl ?? "forms";
 
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);

@@ -67,7 +67,6 @@ export default function CreateFormPage() {
         const data = await response.json();
         setForms(data);
       } catch (error) {
-        console.error("Error fetching forms:", error);
         setError("Failed to load suggested forms.");
       } finally {
         setLoading(false);
@@ -99,7 +98,7 @@ export default function CreateFormPage() {
               </p>
             </div>
             <Button className="bg-white hover:bg-gray-200" onClick={() => router.push('home/ai-chat')}>
-              <PlusCircle className="h-3.5 w-3.5 text-black"/>
+              <PlusCircle className="h-3.5 w-3.5 text-black" />
             </Button>
           </CardContent>
         </Card>
@@ -115,7 +114,7 @@ export default function CreateFormPage() {
               </p>
             </div>
             <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => router.push('home/create-form')}>
-              <PlusCircle className="h-3.5 w-3.5"/>
+              <PlusCircle className="h-3.5 w-3.5" />
             </Button>
           </CardContent>
         </Card>
@@ -125,11 +124,19 @@ export default function CreateFormPage() {
         <h2 className="text-2xl my-6 font-extrabold">Formes Suggérées</h2>
 
         {loading ? (
-          <p>Loading suggested forms...</p>
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">Chargement ...</span>
+          </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <div className="text-blue-500 py-4 bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <h3 className="font-semibold text-blue-700">il n'y a pas de formulaire suggéré pour le moment</h3>
+            <p>{error}</p>
+          </div>
         ) : forms.length === 0 ? (
-          <p>No suggested forms available at the moment.</p>
+          <div className="text-red-500 py-4 bg-red-50 rounded-lg p-4 border border-red-200">
+            <h3 className="font-semibold text-red-700 mb-2"></h3>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {forms.map((form) => (

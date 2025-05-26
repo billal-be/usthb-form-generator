@@ -15,6 +15,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import EmptyFormsView from "./EmptyFormsView";
+import { toast, Toaster } from 'sonner';
 
 type Form = {
   id: number;
@@ -67,8 +69,7 @@ function TemplateCard({
       setIsDialogOpen(false);
 
     } catch (error: any) {
-      console.error("Error deleting form:", error);
-      alert(`Erreur lors de la suppression: ${error.message}`);
+      toast.error("Erreur lors de la suppression");
     } finally {
       setIsDeleting(false);
     }
@@ -141,7 +142,6 @@ function TemplateCard({
 }
 
 export default function MyDraftsPage() {
-  const router = useRouter();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -189,8 +189,7 @@ export default function MyDraftsPage() {
         const data = await response.json();
         setForms(data);
       } catch (error) {
-        console.error("Error fetching user forms:", error);
-        setError("Failed to load your published forms.");
+        setError("échec du chargement de votre brouillon.");
       } finally {
         setLoading(false);
       }
@@ -209,11 +208,17 @@ export default function MyDraftsPage() {
       <div>
         {/* Grille de drafts */}
         {loading ? (
-          <p>Loading forms...</p>
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">Chargement ...</span>
+          </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <div className="text-red-500 py-4 bg-red-50 rounded-lg p-4 border border-red-200">
+            <h3 className="font-semibold text-red-700 mb-2">Erreur de chargement</h3>
+            <p>{error}</p>
+          </div>
         ) : forms.length === 0 ? (
-          <p>No drafts available at the moment.</p>
+          <EmptyFormsView text="Vous n'avez encore aucun brouillon" />
         ) : (
 
           <>
