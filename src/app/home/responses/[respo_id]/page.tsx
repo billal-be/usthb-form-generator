@@ -501,7 +501,7 @@ const Page = () => {
                           }
                           toggleTempField(id);
                         }}
-                        className="h-5 w-5 text-blue-600 rounded flex-shrink-0 mt-1"
+                        className="h-5 w-5 rounded flex-shrink-0 mt-1"
                       />
                     </div>
                   ))}

@@ -201,6 +201,7 @@ function UserCard({
               <Button
                 onClick={handleUpdate}
                 disabled={isUpdating || !editForm.username || !editForm.email}
+                className='bg-blue-600 hover:bg-blue-700 text-white'
               >
                 {isUpdating ? "Mise à jour..." : "Sauvegarder"}
               </Button>

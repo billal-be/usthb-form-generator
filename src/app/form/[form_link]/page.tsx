@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { useRouter } from 'next/router';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 
 type User = {
@@ -85,6 +86,7 @@ export default function FormPage() {
   const [invalidFields, setInvalidFields] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submissionProgress, setSubmissionProgress] = useState<string>("");
+  const [showCaptchaDialog, setShowCaptchaDialog] = useState<boolean>(false);
 
   const generateCaptcha = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
@@ -258,11 +260,12 @@ export default function FormPage() {
 
 
     if (userCaptchaInput !== captchaValue) {
-      alert("CAPTCHA incorrect. Please try again.");
+      setShowCaptchaDialog(true);
       setCaptchaValue(generateCaptcha());
       setUserCaptchaInput("");
       return;
     }
+
 
 
     const newInvalidFields: number[] = [];
@@ -700,6 +703,16 @@ export default function FormPage() {
           </Button>
         </div>
       </form>
+      <Dialog open={showCaptchaDialog} onOpenChange={setShowCaptchaDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>CAPTCHA Incorrect</DialogTitle>
+            <DialogDescription>
+              The verification code you entered is incorrect. Please try again with the new code.
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

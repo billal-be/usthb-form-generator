@@ -1,27 +1,17 @@
 'use client';
 
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const goToLogin = ()=>{
-    router.push('/login');
-  }
 
   return (
-
     <div className="flex items-center justify-center bg-white h-screen">
       <div className="flex flex-col items-center justify-center p-10 text-center h-full max-w-[1000px]">
         <div className="mb-12">
-          <Image
-            src="/images/usthb-form-generator-logo.png"
-            alt="Logo"
-            width={100}
-            height={100}
-            className="h-[110px] w-auto"
-          />
+          <Logo className="h-[110px] w-auto text-blue-600" />
         </div>
 
         <p className="text-center my-10">
@@ -30,7 +20,9 @@ export default function OnboardingPage() {
           clics. Commencez dès maintenant !
         </p>
 
-        <Button onClick={goToLogin} className="bg-blue-600 hover:bg-blue-700">
+        <Button onClick={() => {
+          router.push('/login');
+        }} className="bg-blue-600 hover:bg-blue-700">
           Commencer
         </Button>
       </div>

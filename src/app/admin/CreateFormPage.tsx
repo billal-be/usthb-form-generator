@@ -187,8 +187,6 @@ export default function CreateFormPage() {
             <h3 className="font-semibold text-red-700 mb-2">Erreur de chargement</h3>
             <p>{error}</p>
           </div>
-        ) : forms.length === 0 ? (
-          <p>No suggested forms available at the moment.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {forms.map((form) => (

@@ -129,13 +129,13 @@ export default function CreateFormPage() {
             <span className="ml-3 text-gray-600">Chargement ...</span>
           </div>
         ) : error ? (
-          <div className="text-blue-500 py-4 bg-blue-50 rounded-lg p-4 border border-blue-200">
-            <h3 className="font-semibold text-blue-700">il n'y a pas de formulaire suggéré pour le moment</h3>
+          <div className="text-red-500 py-4 bg-red-50 rounded-lg p-4 border border-red-200">
+            <h3 className="font-semibold text-red-700 mb-2">Erreur de chargement</h3>
             <p>{error}</p>
           </div>
         ) : forms.length === 0 ? (
-          <div className="text-red-500 py-4 bg-red-50 rounded-lg p-4 border border-red-200">
-            <h3 className="font-semibold text-red-700 mb-2"></h3>
+          <div className="text-blue-500 py-4 bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <h3 className="font-semibold text-blue-700">il n'y a pas de formulaire suggéré pour le moment</h3>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

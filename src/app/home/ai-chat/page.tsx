@@ -3,12 +3,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import HomePageHeader from "@/components/HomePageHeader";
 import LoadingAnimation from "@/components/LoadingAnimation";
 import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Send, Sparkles, Bot, User } from "lucide-react";
+import Logo from '@/components/Logo';
 
 type Question = {
     question_text: string;
@@ -48,7 +48,7 @@ const AIChatPage = () => {
     const [messages, setMessages] = useState([
         {
             sender: 'AI',
-            text: `Hi${username ? ` ${username}` : ' there'} ! I am your AI assistant here to help you create a new form from scratch. Just describe what you need."`
+            text: `Salut${username ? ` ${username}` : ' '} ! Je suis ton assistant IA, ici pour t'aider à créer un nouveau formulaire à partir de zéro. Il te suffit de décrire ce dont tu as besoin.`
         }
     ]);
     const [input, setInput] = useState('');
@@ -136,10 +136,15 @@ const AIChatPage = () => {
             {/* Loading Animation Overlay */}
             {isGenerating && <LoadingAnimation />}
 
-            <HomePageHeader
-                title='Assistant IA'
-                description="Créez des formulaires professionnels avec l'intelligence artificielle"
-            />
+            <div className="flex gap-4">
+                <button onClick={() => { router.push("/home?section=create"); }}><Logo className="h-[70px] w-auto text-blue-600" /></button>
+                <div className="h-[70px] flex flex-col justify-center">
+                    <h1 className="text-2xl font-extrabold text-gray-800 mb-0.5">Assistant IA</h1>
+                    <p className="text-xs text-gray-500">
+                        Créez des formulaires professionnels avec l'intelligence artificielle
+                    </p>
+                </div>
+            </div>
 
             {/* Chat Container */}
             <div className="flex-1 flex flex-col bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
@@ -158,8 +163,8 @@ const AIChatPage = () => {
 
                             <div
                                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${msg.sender === 'AI'
-                                        ? 'bg-gray-50 text-gray-800 rounded-tl-md'
-                                        : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-tr-md'
+                                    ? 'bg-gray-50 text-gray-800 rounded-tl-md'
+                                    : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-tr-md'
                                     }`}
                             >
                                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
@@ -221,7 +226,7 @@ const AIChatPage = () => {
                                     className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                                 >
                                     <Send className="w-4 h-4 mr-1" />
-                                    Envoyer
+                                    Chatter
                                 </Button>
 
                                 <Button

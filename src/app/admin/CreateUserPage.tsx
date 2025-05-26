@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserPlus, User, Mail, Lock, Shield, Eye, EyeOff } from "lucide-react";
+import { UserPlus, User, Mail, Lock, Shield, Eye, EyeOff, Crown } from "lucide-react";
 import HomePageHeader from "@/components/HomePageHeader";
 import { useRouter } from "next/navigation";
 import { toast, Toaster } from 'sonner';
@@ -284,7 +284,7 @@ export default function CreateUserPage() {
                     </SelectItem>
                     <SelectItem value="Admin">
                       <div className="flex items-center gap-2">
-                        <Shield className="h-4 w-4" />
+                        <Crown className="h-4 w-4" />
                         Administrateur
                       </div>
                     </SelectItem>
