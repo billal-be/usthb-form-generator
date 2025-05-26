@@ -29,9 +29,9 @@ export default function LoginPage() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error("Invalid email or password");
+          throw new Error("E-mail ou mot de passe invalide.");
         } else {
-          throw new Error("Something went wrong. Please try again.");
+          throw new Error("Une erreur s'est produite. Veuillez réessayer.");
         }
       }
 
@@ -42,14 +42,15 @@ export default function LoginPage() {
 
       // fix role
       if (data.user.role === "User") {
-        router.push("/admin");
-      } else if (data.user.role === "Admin") {
         router.push("/home");
+      } else if (data.user.role === "Admin") {
+        router.push("/admin");
+        //router.push("/home");
       } else {
         setError("Unknown user role");
       }
     } catch (err: any) {
-      const errorMessage = err.message || "An unexpected error occurred";
+      const errorMessage = err.message || "Une erreur inattendue s'est produite";
       toast.error(errorMessage); // Show toast error
     }
   };
@@ -71,24 +72,23 @@ export default function LoginPage() {
         <CardHeader>
           <div className="space-y-1">
             <h2 className="text-xl font-semibold">Log In</h2>
-            <p className="text-sm text-gray-500">Enter your email below</p>
+            <p className="text-sm text-gray-500">Entrez votre email ci-dessous</p>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="Email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 value={email}
-                placeholder="me@example.com"
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Mot de passe</Label>
               <Input
                 id="password"
                 type="password"
@@ -101,7 +101,7 @@ export default function LoginPage() {
             {error && <p className="text-sm text-red-600">{error}</p>}
 
             <Button className="w-full bg-blue-600 hover:bg-blue-700" type="submit">
-              login
+              Connecter
             </Button>
           </form>
         </CardContent>

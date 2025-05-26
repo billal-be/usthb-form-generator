@@ -53,8 +53,7 @@ import {
 import { Copy } from "lucide-react"
 import { toast, Toaster } from "sonner";
 import { useFormSubmission } from "./useFormSubmission";
-import { useRouter } from 'next/navigation';
-import CategorySelectionDialog from "@/components/CategorySelectionDialog";
+import { useRouter, useParams } from 'next/navigation';
 import Logo from "@/components/Logo";
 
 
@@ -71,15 +70,15 @@ type QuestionType =
   | "wilaya";
 
 interface EmailReponse {
-  domainList?: string[];
+  domainList?: string[]; // Optional list of allowed domains
   required?: boolean;
 }
 
 interface DocumentReponse {
   types?: string[];
   tailleMax?: number;
-  multipleFiles?: boolean;
-  files?: Array<{ id: string; name: string }>;
+  multipleFiles?: boolean; // New property to allow multiple files
+  files?: Array<{ id: string; name: string }>; // To track uploaded files
 }
 
 interface NumeroDeTelephoneReponse {
@@ -147,7 +146,6 @@ const FormulaireConstructeur: React.FC = () => {
   const [description, setDescription] = useState<string>("");
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [showChat, setShowChat] = useState(false);
-  const [showCategorySelectionDialog, setShowCategorySelectionDialog] = useState(true);
   const {
     submitForm,
     isSubmitting,
@@ -194,7 +192,7 @@ const FormulaireConstructeur: React.FC = () => {
     return selectTypes.includes(type) ? "select" : "text";
   };
 
-  type AIQuestion = {
+  type ExternalQuestion = {
     question_text: string;
     question_type: string;
     answer_type: string;
@@ -202,33 +200,69 @@ const FormulaireConstructeur: React.FC = () => {
     choices?: string[];
   };
 
-  type AICategory = {
+  type ExternalCategory = {
     category_name: string;
-    questions: AIQuestion[];
+    questions: ExternalQuestion[];
   };
 
-  type AIForm = {
-    categories: AICategory[];
+  type ExternalForm = {
+    categories: ExternalCategory[];
     form_name: string;
     form_description: string;
+    form_type: string;
   };
 
-  const [generatedForm, setGeneratedForm] = useState<AIForm | null>(null);
+  const [Form, setForm] = useState<ExternalForm | null>(null);
 
-  const handleFormGenerated = (form: AIForm) => {
-    setGeneratedForm(form);
+  const handleFormGenerated = (form: ExternalForm) => {
+    setForm(form);
     setShowChat(false);
-    setShowCategorySelectionDialog(false);
   };
+
+  const params = useParams();
+  const formId = params?.formId as string;
+
   useEffect(() => {
-    if (generatedForm) {
-      setTitreFormulaire(generatedForm.form_name);
-      setDescription(generatedForm.form_description);
+    const fetchForm = async () => {
+      try {
+        // Extract formId from params
+        const token = localStorage.getItem('token');
+
+        if (formId) {
+          // Make API request
+          const response = await fetch(`https://projuniv-backend.onrender.com/forms/${formId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          setForm(data);
+        }
+      } catch (error) {
+        console.error('Error fetching form:', error);
+        toast.error('Erreur lors du chargement du formulaire');
+      }
+    };
+
+    fetchForm();
+  }, [params]);
+
+  useEffect(() => {
+    if (Form) {
+      setTitreFormulaire(Form.form_name);
+      setDescription(Form.form_description);
 
       let currentSectionId = globalSectionIdRef.current;
       let currentQuestionId = globalQuestionIdRef.current;
 
-      const mappedSections: Section[] = generatedForm.categories.map(cat => {
+      const mappedSections: Section[] = Form.categories.map(cat => {
         const mappedQuestions: Question[] = cat.questions.map(q => ({
           id: currentQuestionId++,
           type: q.answer_type as QuestionType,
@@ -254,7 +288,7 @@ const FormulaireConstructeur: React.FC = () => {
       setSectionActive(0);
       setQuestionActive(0);
     }
-  }, [generatedForm]);
+  }, [Form]);
 
   const validateForm = () => {
     if (!titreFormulaire.trim()) {
@@ -270,6 +304,26 @@ const FormulaireConstructeur: React.FC = () => {
     return true;
   };
 
+  const deleteForm = async (formId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://projuniv-backend.onrender.com/forms/${formId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete the form");
+      }
+
+    } catch (error) {
+      console.error("Erreur lors de la suppression du formulaire :", error);
+    }
+  };
+
   const saveAsDraft = async () => {
     if (!validateForm()) return;
 
@@ -281,9 +335,12 @@ const FormulaireConstructeur: React.FC = () => {
         formType: "draft" as const
       };
 
-      const formId = await submitForm(formData);
+      const newFormId = await submitForm(formData);
 
-      if (formId) {
+      if (newFormId) {
+        if(Form?.form_type === "draft"){
+          await deleteForm(formId);
+        }
         toast.success("Brouillon enregistré avec succès!");
         setTimeout(() => {
           router.push("/home?section=drafts");
@@ -329,6 +386,9 @@ const FormulaireConstructeur: React.FC = () => {
       const newFormId = await submitForm(formData);
 
       if (newFormId) {
+        if(Form?.form_type === "draft"){
+          await deleteForm(formId);
+        }
         if (!asDraft) {
           setGeneratedLink(formLink);
           setFormId(newFormId);
@@ -1632,18 +1692,6 @@ const FormulaireConstructeur: React.FC = () => {
                   />
                 </DialogContent>
               </Dialog>
-
-              <Dialog open={showCategorySelectionDialog} onOpenChange={setShowCategorySelectionDialog}>
-                <DialogContent className="!max-w-4xl p-6 rounded-lg shadow-lg">
-                  <DialogHeader>
-                    <DialogTitle>Ajouter une section</DialogTitle>
-                    <DialogDescription>
-                      Sélectionnez les sections que vous souhaitez inclure dans votre formulaire.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <CategorySelectionDialog onFormGenerated={handleFormGenerated} />
-                </DialogContent>
-              </Dialog> 
 
               <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg">
                 <Checkbox

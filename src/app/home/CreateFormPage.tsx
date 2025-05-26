@@ -13,7 +13,7 @@ type Form = {
   form_description: string;
 };
 
-function TemplateCard({ title, formDescription,formId }: { title: string, formDescription: string,formId: number }) {
+function TemplateCard({ title, formDescription, formId }: { title: string, formDescription: string, formId: number }) {
   const router = useRouter()
 
   const handleClick = () => {
@@ -42,10 +42,6 @@ export default function CreateFormPage() {
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const goToCreateForm = () => {
-    router.push('home/create-form');
-  }
 
   useEffect(() => {
     const fetchForms = async () => {
@@ -90,25 +86,43 @@ export default function CreateFormPage() {
 
       <hr className="mb-6 border-t border-muted" />
 
-      <Card className="mb-8 p-6">
-        <CardContent className="px-0 flex justify-between items-center">
-          <div>
-            <h2 className="font-semibold text-base">
-              Créer un formulaire à partir de zéro
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Utilisez l'IA pour générer un formulaire personnalisé adapté à vos besoins.
-            </p>
-          </div>
-          <Button className="bg-blue-600 hover:bg-blue-700 ml-2" onClick={goToCreateForm}>
-            <PlusCircle className="h-3.5 w-3.5 mr-1" />
-            <span className="hidden sm:inline">Créer</span>
-          </Button>
-        </CardContent>
-      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="p-6 bg-blue-600 text-white">
+          <CardContent className="px-0 flex justify-between items-center">
+            <div>
+              <h2 className="font-semibold text-base">
+                Créer un formulaire avec le AI
+              </h2>
+              <p className="text-sm  mt-1 mr-2">
+                Utilisez l'IA pour générer un formulaire personnalisé adapté à vos besoins.
+              </p>
+            </div>
+            <Button className="bg-white hover:bg-gray-200" onClick={() => router.push('home/ai-chat')}>
+              <PlusCircle className="h-3.5 w-3.5 text-black"/>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="p-6">
+          <CardContent className="px-0 flex justify-between items-center">
+            <div>
+              <h2 className="font-semibold text-base">
+                Créer un formulaire manuellement
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1 mr-2">
+                Construisez votre formulaire section par section selon vos besoins, sans utiliser l’IA.
+              </p>
+            </div>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => router.push('home/create-form')}>
+              <PlusCircle className="h-3.5 w-3.5"/>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
       <div>
-        <h2 className="text-2xl mb-6 font-extrabold">Suggested Forms</h2>
+        <h2 className="text-2xl my-6 font-extrabold">Formes Suggérées</h2>
 
         {loading ? (
           <p>Loading suggested forms...</p>

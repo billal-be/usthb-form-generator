@@ -71,15 +71,15 @@ type QuestionType =
   | "wilaya";
 
 interface EmailReponse {
-  domainList?: string[];
+  domainList?: string[]; // Optional list of allowed domains
   required?: boolean;
 }
 
 interface DocumentReponse {
   types?: string[];
   tailleMax?: number;
-  multipleFiles?: boolean;
-  files?: Array<{ id: string; name: string }>;
+  multipleFiles?: boolean; // New property to allow multiple files
+  files?: Array<{ id: string; name: string }>; // To track uploaded files
 }
 
 interface NumeroDeTelephoneReponse {
@@ -147,7 +147,6 @@ const FormulaireConstructeur: React.FC = () => {
   const [description, setDescription] = useState<string>("");
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [showChat, setShowChat] = useState(false);
-  const [showCategorySelectionDialog, setShowCategorySelectionDialog] = useState(true);
   const {
     submitForm,
     isSubmitting,
@@ -218,8 +217,21 @@ const FormulaireConstructeur: React.FC = () => {
   const handleFormGenerated = (form: AIForm) => {
     setGeneratedForm(form);
     setShowChat(false);
-    setShowCategorySelectionDialog(false);
   };
+
+  useEffect(() => {
+    const storedForm = localStorage.getItem("generatedForm");
+    if (storedForm) {
+      try {
+        const parsedForm: AIForm = JSON.parse(storedForm);
+        setGeneratedForm(parsedForm);
+        localStorage.removeItem("generatedForm");
+      } catch (error) {
+        console.error("Failed to parse stored form:", error);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (generatedForm) {
       setTitreFormulaire(generatedForm.form_name);
@@ -1632,18 +1644,6 @@ const FormulaireConstructeur: React.FC = () => {
                   />
                 </DialogContent>
               </Dialog>
-
-              <Dialog open={showCategorySelectionDialog} onOpenChange={setShowCategorySelectionDialog}>
-                <DialogContent className="!max-w-4xl p-6 rounded-lg shadow-lg">
-                  <DialogHeader>
-                    <DialogTitle>Ajouter une section</DialogTitle>
-                    <DialogDescription>
-                      Sélectionnez les sections que vous souhaitez inclure dans votre formulaire.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <CategorySelectionDialog onFormGenerated={handleFormGenerated} />
-                </DialogContent>
-              </Dialog> 
 
               <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg">
                 <Checkbox

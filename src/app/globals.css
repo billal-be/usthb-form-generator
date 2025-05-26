@@ -125,3 +125,26 @@
     @apply bg-background text-foreground;
   }
 }
+
+.scroll-container {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.scroll-text {
+  display: inline-block;
+  white-space: nowrap;
+  padding-right: 100%; /* حتى لا يختفي بسرعة */
+  will-change: transform;
+  animation: scroll-once 3s ease-out 1;
+}
+
+@keyframes scroll-once {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}

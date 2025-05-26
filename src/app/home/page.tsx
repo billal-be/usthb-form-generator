@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import CreateFormPage from "./CreateFormPage";
 import MyDraftsPage from "./MyDraftsPage";
@@ -30,45 +31,36 @@ const menuItems = [
 ];
 
 export default function Page() {
-  const [active, setActive] = useState("forms");
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const sectionFromUrl = searchParams.get("section");
+  const active = sectionFromUrl ?? "create";
 
-  // State to track screen size
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
-
-
-  // Adaptation for small screens - only for initial state
   useEffect(() => {
     const handleResize = () => {
       const smallScreen = window.innerWidth < 768;
-
-      // Only set the initial state of the sidebar
-      // Don't change the state if the user has already manually modified it
       if (smallScreen !== isSmallScreen) {
         setIsCollapsed(smallScreen);
       }
       setIsSmallScreen(smallScreen);
     };
 
-    // Initial check
     handleResize();
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [isSmallScreen]);
 
   return (
     <div className="flex min-h-screen relative">
-      {/* Sidebar - adaptive with collapsed mode on small screens */}
-      <aside className={cn(
-        "bg-white border-r flex flex-col fixed h-full transition-all duration-300 ease-in-out z-20",
-        isCollapsed
-          ? "w-14" // Collapsed sidebar (only icon visible)
-          : "w-64"  // Full sidebar
-      )}>
-        {/* Toggle button for the sidebar */}
+      <aside
+        className={cn(
+          "bg-white border-r flex flex-col fixed h-full transition-all duration-300 ease-in-out z-20",
+          isCollapsed ? "w-14" : "w-64"
+        )}
+      >
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
@@ -79,61 +71,57 @@ export default function Page() {
           <ChevronRight className="h-4 w-4 text-gray-600" />
         </button>
 
-        {/* Logo */}
-        <div className={cn(
-          "my-8 flex justify-center"
-        )}>
-          <div className={cn(
-            "text-3xl mr-1",
-            isCollapsed ? "opacity-0 absolute" : "opacity-100 transition-opacity duration-300"
-          )}>
+        <div className="my-8 flex justify-center">
+          <div
+            className={cn(
+              "text-3xl mr-1",
+              isCollapsed ? "opacity-0 absolute" : "opacity-100 transition-opacity duration-300"
+            )}
+          >
             USTHB
           </div>
           <Logo className="w-9 h-9 text-blue-600" />
-          <div className={cn(
-            "text-3xl font-extrabold -ml-1 text-blue-600 ",
-            isCollapsed ? "opacity-0 absolute" : "opacity-100 transition-opacity duration-300"
-          )}>
+          <div
+            className={cn(
+              "text-3xl font-extrabold -ml-1 text-blue-600",
+              isCollapsed ? "opacity-0 absolute" : "opacity-100 transition-opacity duration-300"
+            )}
+          >
             ORMS
           </div>
         </div>
 
-        {/* Menu */}
         <nav className="flex flex-col gap-1 px-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             return (
               <button
                 key={item.id}
-                onClick={() => {
-                  setActive(item.id);
-                }}
+                onClick={() => router.push(`/home?section=${item.id}`)}
                 className={cn(
                   "relative text-left py-2 rounded-md transition-colors duration-150 flex items-center overflow-hidden",
                   active === item.id
                     ? "bg-blue-50 text-blue-600 font-semibold"
                     : "hover:bg-gray-100 text-gray-700",
-                  isCollapsed
-                    ? "justify-center px-2"
-                    : "px-4"
+                  isCollapsed ? "justify-center px-2" : "px-4"
                 )}
                 title={isCollapsed ? item.label : ""}
               >
                 {active === item.id && (
                   <span className="absolute right-0 h-full w-1 bg-blue-600"></span>
                 )}
-
-                {/* Icon - always visible */}
-                <Icon className={cn(
-                  "h-5 w-5 flex-shrink-0 transition-transform duration-150",
-                  isCollapsed ? "transform scale-110" : ""
-                )} />
-
-                {/* Text label - fades in/out with opacity transition */}
-                <span className={cn(
-                  "ml-3 whitespace-nowrap transition-all duration-150",
-                  isCollapsed ? "opacity-0 w-0 ml-0" : "opacity-100 w-auto"
-                )}>
+                <Icon
+                  className={cn(
+                    "h-5 w-5 flex-shrink-0 transition-transform duration-150",
+                    isCollapsed ? "transform scale-110" : ""
+                  )}
+                />
+                <span
+                  className={cn(
+                    "ml-3 whitespace-nowrap transition-all duration-150",
+                    isCollapsed ? "opacity-0 w-0 ml-0" : "opacity-100 w-auto"
+                  )}
+                >
                   {item.label}
                 </span>
               </button>
@@ -142,11 +130,12 @@ export default function Page() {
         </nav>
       </aside>
 
-      {/* Main content */}
-      <main className={cn(
-        "flex-1 p-4 sm:p-6 pt-6 min-h-screen overflow-x-hidden transition-all duration-150",
-        isCollapsed ? "ml-14" : "ml-0 md:ml-64"
-      )}>
+      <main
+        className={cn(
+          "flex-1 p-4 sm:p-6 pt-6 min-h-screen overflow-x-hidden transition-all duration-150",
+          isCollapsed ? "ml-14" : "ml-0 md:ml-64"
+        )}
+      >
         {active === "create" ? (
           <CreateFormPage />
         ) : active === "forms" ? (

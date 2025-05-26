@@ -27,30 +27,14 @@ import {
 } from "@hello-pangea/dnd";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import AIChatDialog from "@/components/AIChatDialog";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog"
 
-import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
-import { fr } from 'date-fns/locale';
-import { Clock } from 'lucide-react';
-import { cn } from "@/lib/utils"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { Copy } from "lucide-react"
 import { toast, Toaster } from "sonner";
 import { useFormSubmission } from "./useFormSubmission";
 import { useRouter } from 'next/navigation';
@@ -71,15 +55,15 @@ type QuestionType =
   | "wilaya";
 
 interface EmailReponse {
-  domainList?: string[];
+  domainList?: string[]; // Optional list of allowed domains
   required?: boolean;
 }
 
 interface DocumentReponse {
   types?: string[];
   tailleMax?: number;
-  multipleFiles?: boolean;
-  files?: Array<{ id: string; name: string }>;
+  multipleFiles?: boolean; // New property to allow multiple files
+  files?: Array<{ id: string; name: string }>; // To track uploaded files
 }
 
 interface NumeroDeTelephoneReponse {
@@ -136,8 +120,6 @@ const FormulaireConstructeur: React.FC = () => {
     },
   ]);
 
-  type StepType = "selection" | "showLink" | "link";
-  const [step, setStep] = useState<StepType>("selection");
   const router = useRouter();
   const [sectionActive, setSectionActive] = useState<number>(0);
   const [questionActive, setQuestionActive] = useState<number>(0);
@@ -152,35 +134,8 @@ const FormulaireConstructeur: React.FC = () => {
     submitForm,
     isSubmitting,
     formId: hookFormId,
-    setFormId,
-    formLink,
-    generateRandomCode,
-    user
+
   } = useFormSubmission();
-
-  const [date, setDate] = useState<Date | undefined>(undefined);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [generatedLink, setGeneratedLink] = useState<string>("");
-  const [isCreatingForm, setIsCreatingForm] = useState<boolean>(false);
-  const [time, setTime] = useState({ hours: "23", minutes: "59" });
-
-  const hourOptions = Array.from({ length: 24 }, (_, i) =>
-    i.toString().padStart(2, '0')
-  );
-
-  const minuteOptions = Array.from({ length: 60 }, (_, i) =>
-    i.toString().padStart(2, '0')
-  );
-
-  const getDateTime = () => {
-    if (!date) return null;
-    const dateTime = new Date(date);
-    dateTime.setHours(parseInt(time.hours));
-    dateTime.setMinutes(parseInt(time.minutes));
-    dateTime.setSeconds(0);
-    dateTime.setMilliseconds(0);
-    return dateTime;
-  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -270,7 +225,7 @@ const FormulaireConstructeur: React.FC = () => {
     return true;
   };
 
-  const saveAsDraft = async () => {
+  const saveForm = async () => {
     if (!validateForm()) return;
 
     try {
@@ -278,7 +233,7 @@ const FormulaireConstructeur: React.FC = () => {
         titreFormulaire,
         description,
         sections,
-        formType: "draft" as const
+        formType: "suggested" as const
       };
 
       const formId = await submitForm(formData);
@@ -286,88 +241,12 @@ const FormulaireConstructeur: React.FC = () => {
       if (formId) {
         toast.success("Brouillon enregistré avec succès!");
         setTimeout(() => {
-          router.push("/home?section=drafts");
+          router.push("/admin?section=create");
         }, 1500);
       }
     } catch (error) {
       console.error("Error saving draft:", error);
       toast.error("Erreur lors de l'enregistrement du brouillon");
-    }
-  };
-
-  const handleSubmitForm = async (asDraft = false, endDateTime: Date | null | undefined = null) => {
-    if (!validateForm()) return null;
-    setIsCreatingForm(true);
-
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("Vous devez être connecté pour créer un formulaire");
-        return null;
-      }
-
-      // Use endDateTime if provided, otherwise fall back to date
-      const deadline = endDateTime || date;
-
-      const formData = {
-        titreFormulaire,
-        description,
-        sections: sections.map(section => ({
-          nom: section.nom,
-          questions: section.questions.map(question => ({
-            titre: question.titre,
-            type: question.type,
-            obligatoire: question.obligatoire,
-            choix: question.choix
-          }))
-        })),
-        deadline: deadline,
-        formType: asDraft ? "draft" as const : "published" as const
-      };
-
-      console.log("Submitting form with data:", formData);
-      const newFormId = await submitForm(formData);
-
-      if (newFormId) {
-        if (!asDraft) {
-          setGeneratedLink(formLink);
-          setFormId(newFormId);
-          setStep("showLink");
-        } else {
-          setTimeout(() => {
-            router.push('/home');
-          }, 1500);
-        }
-        return newFormId;
-      }
-      return null;
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("Erreur lors de la soumission du formulaire");
-      return null;
-    } finally {
-      setIsCreatingForm(false);
-    }
-  };
-
-  const handlePublishForm = async () => {
-    const formId = await handleSubmitForm(false);
-  };
-
-  const handleSaveAsDraft = async () => {
-    const formId = await handleSubmitForm(true);
-  };
-
-  const handleCopyLink = () => {
-    if (formLink) {
-      navigator.clipboard.writeText(formLink);
-      toast.success("Lien copié dans le presse-papiers");
-    }
-  };
-
-  const handleViewForm = () => {
-    if (hookFormId) {
-      router.push(`/${formLink}`);
     }
   };
 
@@ -478,7 +357,7 @@ const FormulaireConstructeur: React.FC = () => {
                   ...question,
                   type: type,
                   choix:
-                      type === "choix unique" ||
+                    type === "choix unique" ||
                       type === "dropdown"
                       ? ["Option 1", "Option 2", "Option 3"]
                       : undefined,
@@ -1108,47 +987,11 @@ const FormulaireConstructeur: React.FC = () => {
     }
   };
 
-  const handleDialogClose = () => {
-    setStep("selection");
-    setTimeout(() => {
-      setDate(undefined);
-    }, 300);
-  };
-
-  const handleDialogCloseWithRedirect = () => {
-    handleDialogClose();
-    setTimeout(() => {
-      router.push('/home');
-    }, 500);
-  };
-
-  const getLink = async () => {
-    try {
-      const dateTime = getDateTime(); // Get the combined date and time
-      const formId = await handleSubmitForm(false, dateTime); // Pass dateTime to handleSubmitForm
-
-      if (formId) {
-        setStep("link");
-      }
-    } catch (error) {
-      toast.error("Une erreur est survenue lors de la publication");
-      console.error("Publication error:", error);
-    }
-  };
-
-  const handleCopy = () => {
-    if (formLink) {
-      const fullLink = `http://localhost:3000/form/${formLink}`;
-      navigator.clipboard.writeText(fullLink);
-      toast.success("Lien copié dans le presse-papiers");
-    }
-  };
-
   return (
     <>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center m-6 px-4 max-w-7xl mx-auto gap-4">
         <div className="flex gap-4">
-          <button onClick={() => { router.push("/home?section=create"); }}><Logo className="h-[70px] w-auto text-blue-600" /></button>
+          <button onClick={() => { router.push("/admin?section=create"); }}><Logo className="h-[70px] w-auto text-blue-600" /></button>
           <div className="h-[70px] flex flex-col justify-center">
             <h1 className="text-2xl font-extrabold text-gray-800 mb-0.5">Formulaire</h1>
             <p className="text-xs text-gray-500">
@@ -1160,8 +1003,8 @@ const FormulaireConstructeur: React.FC = () => {
           <Button
             variant="secondary"
             size="sm"
-            className="text-gray-600 hover:bg-gray-100 hover:text-gray-800 transition-colors"
-            onClick={saveAsDraft}
+            className="bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+            onClick={saveForm}
             disabled={isSubmitting}
           >
             {isSubmitting ? "Enregistrement..." : "Enregistrer"}
@@ -1169,173 +1012,6 @@ const FormulaireConstructeur: React.FC = () => {
 
           {/* This component displays the toasts */}
           <Toaster position="top-center" richColors />
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700"
-              >Publier</Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
-              {step === "selection" ? (
-                // Initial content for date selection
-                <>
-                  <DialogHeader>
-                    <DialogTitle>Gérer les accès de publication</DialogTitle>
-                    <DialogDescription>
-                      Utilisez ces paramètres pour contrôler la Date et l'Heure de Fin de ce Formulaire
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="py-4 space-y-4">
-                    {/* Date Selection */}
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="date-picker">Date de fin *</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            id="date-picker"
-                            variant={"outline"}
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !date ? "text-red-500 border-red-500" : "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {date ? format(date, "PPP", { locale: fr }) : <span>Choisir une date (obligatoire)</span>}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={setDate}
-                            initialFocus
-                            disabled={(date) => date < new Date()}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      {!date && <p className="text-sm text-red-500">Une date doit être sélectionnée</p>}
-                    </div>
-
-                    {/* Time Selection */}
-                    <div className="flex flex-col gap-2">
-                      <Label>Heure de fin *</Label>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
-                        <div className="flex items-center gap-2">
-                          <Select
-                            value={time.hours}
-                            onValueChange={(value) => setTime(prev => ({ ...prev, hours: value }))}
-                          >
-                            <SelectTrigger className={cn(
-                              "w-20",
-                              !time.hours ? "border-red-500" : ""
-                            )}>
-                              <SelectValue placeholder="HH" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {hourOptions.map((hour) => (
-                                <SelectItem key={hour} value={hour}>
-                                  {hour}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <span className="text-muted-foreground">:</span>
-                          <Select
-                            value={time.minutes}
-                            onValueChange={(value) => setTime(prev => ({ ...prev, minutes: value }))}
-                          >
-                            <SelectTrigger className={cn(
-                              "w-20",
-                              !time.minutes ? "border-red-500" : ""
-                            )}>
-                              <SelectValue placeholder="MM" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {minuteOptions.map((minute) => (
-                                <SelectItem key={minute} value={minute}>
-                                  {minute}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      {(!time.hours || !time.minutes) && (
-                        <p className="text-sm text-red-500">L'heure et les minutes doivent être sélectionnées</p>
-                      )}
-                    </div>
-
-                    {/* Preview of selected date and time */}
-                    {date && time.hours && time.minutes && (
-                      <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
-                        <p className="text-sm text-blue-800">
-                          <strong>Date et heure de fin sélectionnées :</strong>
-                        </p>
-                        <p className="text-sm text-blue-700 mt-1">
-                          {format(date, "EEEE d MMMM yyyy", { locale: fr })} à {time.hours}:{time.minutes}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      className="bg-blue-600 hover:bg-blue-700"
-                      onClick={getLink}
-                      disabled={!date || !time.hours || !time.minutes || isSubmitting}
-                    >
-                      {isSubmitting ? "Publication..." : "Publier"}
-                    </Button>
-                  </DialogFooter>
-                </>
-              ) : (
-                // Content for link sharing
-                <>
-                  <DialogHeader>
-                    <DialogTitle>Partager le lien</DialogTitle>
-                    <DialogDescription>
-                      Toute personne disposant de ce lien pourra remplir le formulaire.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="flex items-center space-x-2">
-                    <div className="grid flex-1 gap-2">
-                      <Label htmlFor="link" className="sr-only">
-                        Link
-                      </Label>
-                      <Input
-                        id="link"
-                        ref={inputRef}
-                        defaultValue={`http://localhost:3000/form/${formLink}`}
-                        readOnly
-                      />
-                    </div>
-                    <Button
-                      type="button"
-                      size="sm"
-                      className="px-3 bg-blue-600 hover:bg-blue-700"
-                      onClick={handleCopy}
-                    >
-                      <span className="sr-only">Copy</span>
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <DialogFooter className="sm:justify-start">
-                    <DialogClose asChild>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className="bg-slate-100 hover:bg-slate-200 text-sm text-black"
-                        onClick={handleDialogCloseWithRedirect}
-                      >
-                        Fermer
-                      </Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </>
-              )}
-            </DialogContent>
-          </Dialog>
         </div>
       </div>
 
@@ -1643,7 +1319,7 @@ const FormulaireConstructeur: React.FC = () => {
                   </DialogHeader>
                   <CategorySelectionDialog onFormGenerated={handleFormGenerated} />
                 </DialogContent>
-              </Dialog> 
+              </Dialog>
 
               <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg">
                 <Checkbox

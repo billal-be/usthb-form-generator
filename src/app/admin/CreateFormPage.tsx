@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { PlusCircle } from "lucide-react"
 import HomePageHeader from "@/components/HomePageHeader"
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
@@ -22,24 +23,10 @@ type Form = {
   form_description: string;
 };
 
-function TemplateCard({
-  title,
-  formDescription,
-  formId,
-  onDelete
-}: {
-  title: string,
-  formDescription: string,
-  formId: number,
-  onDelete: (formId: number) => void
-}) {
-  const router = useRouter();
+function TemplateCard({ title, formDescription, formId, onDelete }: { title: string, formDescription: string, formId: number, onDelete: (formId: number) => void }) {
+  const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const handleClick = () => {
-    router.push(`home/create-form/${formId}`);
-  };
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -79,14 +66,13 @@ function TemplateCard({
   };
 
   return (
-    <Card className="p-6 relative">
-      {/* Delete button positioned in top-right corner */}
+    <Card className="p-6 relative"> {/* Added 'relative' here */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
-            className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600"
+            className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 z-10" // Added z-10
             disabled={isDeleting}
             title="Supprimer le brouillon"
           >
@@ -118,8 +104,7 @@ function TemplateCard({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <CardContent className="px-0 pr-8"> {/* Add right padding to avoid overlap with delete button */}
+      <CardContent className="px-0">
         <h3 className="font-semibold text-base">{title}</h3>
         <div className="h-5 mt-1.5">
           <p className="text-sm text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
@@ -128,53 +113,30 @@ function TemplateCard({
         </div>
       </CardContent>
       <CardFooter className="px-0">
-        <Button
-          className="w-fit bg-slate-100 hover:bg-slate-200 text-sm text-black font-bold"
-          onClick={handleClick}
-          disabled={isDeleting}
-        >
-          {isDeleting ? "Suppression..." : "Utiliser ce modèle"}
+        <Button className="w-fit bg-slate-100 hover:bg-slate-200 text-sm text-black font-bold" onClick={() => { router.push(`admin/create-form/${formId}`) }}>
+          {isDeleting ? "Suppression..." : "Modifier"}
         </Button>
       </CardFooter>
     </Card>
   );
 }
 
-export default function MyDraftsPage() {
+export default function CreateFormPage() {
   const router = useRouter();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFormDelete = (formId: number) => {
-    setForms(prevForms => prevForms.filter(form => form.id !== formId));
-  };
-
   useEffect(() => {
-    const fetchUserForms = async () => {
+    const fetchForms = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        // Get user from localStorage
-        const userString = localStorage.getItem("user");
-        if (!userString) {
-          throw new Error("No user found in localStorage");
-        }
-
-        // Parse user object to get the ID
-        const userObject = JSON.parse(userString);
-        const userId = userObject.id;
-
-        if (!userId) {
-          throw new Error("No user ID found");
-        }
-
         // Get the authentication token from localStorage
         const token = localStorage.getItem('token');
 
-        // Fetch published forms for the user
-        const response = await fetch(`https://projuniv-backend.onrender.com/forms/user/${userId}/drafts`, {
+        const response = await fetch("https://projuniv-backend.onrender.com/forms/type/suggested", {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -189,49 +151,59 @@ export default function MyDraftsPage() {
         const data = await response.json();
         setForms(data);
       } catch (error) {
-        console.error("Error fetching user forms:", error);
-        setError("Failed to load your published forms.");
+        console.error("Error fetching forms:", error);
+        setError("Failed to load suggested forms.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserForms();
+    fetchForms();
   }, []);
+
+  const handleFormDelete = (formId: number) => {
+    setForms(prevForms => prevForms.filter(form => form.id !== formId));
+  };
 
   return (
     <main className="container mx-auto px-2 sm:px-4">
-      {/* En-tête ultra-compact */}
-      <HomePageHeader title='Drafts' description='Retrouvez tous vos drafts enregistrés et modifiez-les facilement.'></HomePageHeader>
+      <HomePageHeader
+        title="Administrateur"
+        description="Bienvenu dans votre espace !"
+      />
 
       <hr className="mb-6 border-t border-muted" />
 
       <div>
-        {/* Grille de drafts */}
+        <h2 className="text-2xl my-6 font-extrabold">Formes Suggérées</h2>
+
         {loading ? (
-          <p>Loading forms...</p>
+          <p>Loading suggested forms...</p>
         ) : error ? (
           <p className="text-red-500">{error}</p>
         ) : forms.length === 0 ? (
-          <p>No drafts available at the moment.</p>
+          <p>No suggested forms available at the moment.</p>
         ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {forms.map((form) => (
+              <TemplateCard key={form.id} title={form.form_name} formDescription={form.form_description} formId={form.id} onDelete={handleFormDelete} />
+            ))}
 
-          <>
-            <h2 className="text-xl font-semibold mb-4">
-              Formulaires en brouillon ({forms.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {forms.map((form) => (
-                <TemplateCard
-                  key={form.id}
-                  title={form.form_name}
-                  formDescription={form.form_description}
-                  formId={form.id}
-                  onDelete={handleFormDelete}
-                />
-              ))}
-            </div>
-          </>
+            <Card className="p-6 border-dashed border-blue-600">
+              <CardContent className="px-0">
+                <h3 className="font-semibold text-base">Créer un modèle de formulaire</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Ce modèle sera ajouté aux formulaires suggérés pour une utilisation rapide.
+                </p>
+              </CardContent>
+              <CardFooter className="px-0">
+                <Button className="w-fit bg-blue-600 hover:bg-blue-700 text-sm font-bold text-white" onClick={() => { router.push(`admin/create-form`) }}>
+                  <PlusCircle />
+                  Créer un formulaire
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
         )}
       </div>
     </main>
