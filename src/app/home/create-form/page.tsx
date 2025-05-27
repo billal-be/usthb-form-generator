@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PlusIcon, PlusCircleIcon, GripVertical } from "lucide-react";
+import { PlusIcon, PlusCircleIcon, GripVertical, Home } from "lucide-react";
 import { XIcon } from "lucide-react";
 import { Delete } from "lucide-react";
 import {
@@ -1144,11 +1144,15 @@ const FormulaireConstructeur: React.FC = () => {
     }
   };
 
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+
   return (
     <>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center m-6 px-4 max-w-7xl mx-auto gap-4">
         <div className="flex gap-4">
-          <button onClick={() => { router.push("/home?section=create"); }}><Logo className="h-[70px] w-auto text-blue-600" /></button>
+          <button onClick={() => {
+            setShowSaveDialog(true)
+          }}><Logo className="h-[70px] w-auto text-blue-600" /></button>
           <div className="h-[70px] flex flex-col justify-center">
             <h1 className="text-2xl font-extrabold text-gray-800 mb-0.5">Formulaire</h1>
             <p className="text-xs text-gray-500">
@@ -1156,6 +1160,35 @@ const FormulaireConstructeur: React.FC = () => {
             </p>
           </div>
         </div>
+
+        <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Sauvegarder le formulaire</DialogTitle>
+              <DialogDescription>
+                Voulez-vous sauvegarder ce formulaire en tant que brouillon avant de continuer ?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onClick={() => {
+                  setShowSaveDialog(false);
+                  router.push("/home?section=create");
+                }}
+              >
+                Non
+              </button>
+              <button
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onClick={saveAsDraft}
+              >
+                Oui
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <div className="flex space-x-2 w-full md:w-auto">
           <Button
             variant="secondary"
@@ -1588,7 +1621,7 @@ const FormulaireConstructeur: React.FC = () => {
             </div>
 
             {/* Sidebar controls*/}
-            <div className="lg:w-64 space-y-4 order-1 lg:order-2">
+            <div className="lg:w-64 space-y-4 order-1 lg:order-2 sticky top-6 self-start h-fit">
               <Button
                 className="w-full bg-blue-600 text-white hover:bg-blue-700"
                 onClick={ajouterSection}
@@ -1633,18 +1666,6 @@ const FormulaireConstructeur: React.FC = () => {
                 </DialogContent>
               </Dialog>
 
-              <Dialog open={showCategorySelectionDialog} onOpenChange={setShowCategorySelectionDialog}>
-                <DialogContent className="!max-w-4xl p-6 rounded-lg shadow-lg">
-                  <DialogHeader>
-                    <DialogTitle>Ajouter une section</DialogTitle>
-                    <DialogDescription>
-                      Sélectionnez les sections que vous souhaitez inclure dans votre formulaire.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <CategorySelectionDialog onFormGenerated={handleFormGenerated} />
-                </DialogContent>
-              </Dialog>
-
               <div className="flex items-center space-x-2 p-2 bg-gray-50 rounded-lg">
                 <Checkbox
                   id="all-required"
@@ -1673,6 +1694,18 @@ const FormulaireConstructeur: React.FC = () => {
                 </label>
               </div>
             </div>
+
+            <Dialog open={showCategorySelectionDialog} onOpenChange={setShowCategorySelectionDialog}>
+              <DialogContent className="!max-w-4xl p-6 rounded-lg shadow-lg">
+                <DialogHeader>
+                  <DialogTitle>Ajouter une section</DialogTitle>
+                  <DialogDescription>
+                    Sélectionnez les sections que vous souhaitez inclure dans votre formulaire.
+                  </DialogDescription>
+                </DialogHeader>
+                <CategorySelectionDialog onFormGenerated={handleFormGenerated} />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>

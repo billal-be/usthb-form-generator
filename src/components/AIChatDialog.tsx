@@ -252,7 +252,7 @@ export default function AIChatDialog({ currentForm, onFormGenerated }: AIChatDia
                                     className="bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                                 >
                                     <Sparkles className="w-4 h-4 mr-1" />
-                                    {isGenerating ? 'Génération...' : 'Améliorer le formulaire'}
+                                    {isGenerating ? 'Génération...' : 'Générer le formulaire'}
                                 </Button>
                             </div>
                         </div>

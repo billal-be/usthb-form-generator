@@ -1319,7 +1319,7 @@ const FormulaireConstructeur: React.FC = () => {
             </div>
 
             {/* Sidebar controls*/}
-            <div className="lg:w-64 space-y-4 order-1 lg:order-2">
+            <div className="lg:w-64 space-y-4 order-1 lg:order-2 sticky top-6 self-start h-fit">
               <Button
                 className="w-full bg-blue-600 text-white hover:bg-blue-700"
                 onClick={ajouterSection}
