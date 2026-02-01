@@ -144,10 +144,6 @@ The application connects to a backend API hosted at `https://projuniv-backend.on
 
 AI features are powered by a Python backend at `https://syyklo.pythonanywhere.com` accessed through the local proxy server (`proxy.js`).
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
 ## 📄 License
 
 This project is licensed under the ISC License.
@@ -155,7 +151,3 @@ This project is licensed under the ISC License.
 ## 🏫 About USTHB
 
 This application is designed specifically for the University of Science and Technology Houari Boumediene (USTHB) administration to streamline the creation and management of official forms and documents.
-
-## 📧 Support
-
-For support and questions, please contact the development team or create an issue in the repository.
