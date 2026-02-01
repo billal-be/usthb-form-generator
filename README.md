@@ -69,8 +69,8 @@ pnpm install
 bun install
 ```
 
-3. Set up environment variables:
-Create a `.env.local` file in the root directory with the required environment variables.
+3. Set up environment variables (if needed):
+Create a `.env.local` file in the root directory if you need to configure custom environment variables for your deployment.
 
 4. Start the development server:
 ```bash
